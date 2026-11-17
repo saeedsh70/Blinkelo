@@ -12,6 +12,7 @@ const S = {
   st: {},            // native state (devices, active, settings, permissions, ...)
   cache: {},         // last value of live events (sysinfo, pcmedia, apps, volume, commands, tasks, timers, received, ...)
   route: 'home',
+  hidden: false,     // the app is off screen (MainActivity onStop): the page is unmounted, see __island.visible
   stack: [],
   transfers: {},
   planner: { ym: null, sel: null },
@@ -116,10 +117,9 @@ window.__island = {
         }
         if (!connected()) delete S.cache.sysinfo;
         if (wasConnected !== connected() || previousId !== (S.st.active && S.st.active.id)) {
-          const route = ROUTES[S.route];
-          if (route.unmount) route.unmount();
+          unmountRoute();
           render();
-          if (route.mount) route.mount();
+          mountRoute();
         } else softRender(['header', 'home', 'devices']);
         break;
       }
@@ -172,6 +172,17 @@ window.__island = {
   },
   route(r) { if (ROUTES[r]) go(r); },
   back() { return back(); },
+  // Called by MainActivity when the app leaves / returns to the screen. Leaving unmounts the page, which ends its
+  // live subscriptions (PC stats every 2 s, game numbers) instead of renewing them forever in the background.
+  // Returning pulls the cached state the app skipped meanwhile and mounts the page again.
+  visible(on) {
+    if (S.hidden === !on) return;
+    S.hidden = !on;
+    if (!on) { unmountRoute(); return; }
+    refreshState();
+    softRender(['header', S.route]);
+    mountRoute();
+  },
   volumeKey(dir) {
     if (S.route === 'presenter') presenterKey(dir === 'down' ? 'next' : 'prev');
     else if (S.route === 'remote' || S.route === 'media') send('kdeconnect.mousepad.request', { vk: dir === 'up' ? 0xAF : 0xAE });
@@ -202,16 +213,30 @@ const ROUTES = {
   about: { parent: 'settings', render: aboutPage },
 };
 
+// A page is mounted at most once, and never while the app is off screen (MainActivity may route on a notification
+// tap before it reports being visible again); visible(true) mounts it then.
+let mountedRoute = null;
+function mountRoute() {
+  if (S.hidden || mountedRoute === S.route) return;
+  mountedRoute = S.route;
+  const r = ROUTES[S.route];
+  if (r && r.mount) r.mount();
+}
+function unmountRoute() {
+  if (mountedRoute === null) return;
+  const r = ROUTES[mountedRoute];
+  mountedRoute = null;
+  if (r && r.unmount) r.unmount();
+}
+
 function go(route, { replace = false } = {}) {
   if (!ROUTES[route]) return;
-  const prev = ROUTES[S.route];
-  if (prev && prev.unmount) prev.unmount();
+  unmountRoute();
   if (ROUTES[route].tab) S.stack = [];
   else if (!replace && S.route !== route) S.stack.push(S.route);
   S.route = route;
   render();
-  const r = ROUTES[route];
-  if (r.mount) r.mount();
+  mountRoute();
   const main = $('#main');
   if (main) main.scrollTop = 0;
 }
@@ -220,12 +245,10 @@ function back() {
   if (S.sheet) { closeSheet(); return true; }
   if (S.stack.length) {
     const prev = S.stack.pop();
-    const cur = ROUTES[S.route];
-    if (cur && cur.unmount) cur.unmount();
+    unmountRoute();
     S.route = prev;
     render();
-    const r = ROUTES[prev];
-    if (r.mount) r.mount();
+    mountRoute();
     return true;
   }
   if (S.route !== 'home') { go('home'); return true; }
@@ -1463,8 +1486,7 @@ function boot() {
     if (p.get('route') && ROUTES[p.get('route')]) S.route = p.get('route');
   }
   render();
-  const r = ROUTES[S.route];
-  if (r && r.mount) r.mount();
+  mountRoute();
   setInterval(() => {
     if (S.route === 'home') document.querySelectorAll('[data-ends]').forEach((el) => { el.textContent = clock((Number(el.dataset.ends) - Date.now()) / 1000); });
   }, 1000);

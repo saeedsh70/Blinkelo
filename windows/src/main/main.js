@@ -7,9 +7,10 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const crypto = require('crypto');
-const { spawn, execFile } = require('child_process');
+const { spawn } = require('child_process');
 const { Settings } = require('./settings');
 const { writeJson } = require('./jsonfile');
+const { GpuStats } = require('./gpustats');
 const { HelperBridge } = require('./helper');
 const { KdeConnect } = require('./kdeconnect');
 const { Weather, searchCity } = require('./weather');
@@ -104,6 +105,7 @@ let attentionTimer = null;
 let statsTimer = null;
 let lastCpu = null;
 let gpuPath = null;
+let gpuStats = null;
 let registeredShortcut = null;
 const iconCache = new Map();
 let clipHistory = [];
@@ -705,21 +707,10 @@ function readStats() {
   const total = os.totalmem();
   const free = os.freemem();
   const stats = { cpu, ram: 100 * (1 - free / total), ramUsed: total - free, ramTotal: total, gpu: null, gpuTemp: null };
-  if (!gpuPath) return Promise.resolve(stats);
-  return new Promise((resolve) => {
-    execFile(gpuPath, ['--query-gpu=utilization.gpu,temperature.gpu,name,memory.used,memory.total,power.draw', '--format=csv,noheader,nounits'], { timeout: 1500, windowsHide: true }, (err, out) => {
-      if (!err && out) {
-        const [u, t, name, mu, mt, pw] = out.split('\n')[0].split(',').map((s) => s.trim());
-        const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : null);
-        stats.gpu = num(u);
-        stats.gpuTemp = num(t);
-        stats.gpuName = name;
-        if (num(mu) !== null && num(mt)) { stats.vramUsed = num(mu) * 1048576; stats.vramTotal = num(mt) * 1048576; }
-        if (num(pw) !== null) stats.gpuPower = num(pw);
-      }
-      resolve(stats);
-    });
-  });
+  // NVIDIA numbers come from one long-running nvidia-smi (gpustats.js), not one process per sample
+  const g = gpuStats ? gpuStats.read() : null;
+  if (g) Object.assign(stats, g);
+  return Promise.resolve(stats);
 }
 
 // One CPU sample source for both the island and phones (the CPU delta needs a shared baseline).
@@ -739,6 +730,7 @@ function sampleStats() {
 function setStatsSubscribed(on) {
   if (on && !statsTimer) {
     lastCpu = cpuSnapshot();
+    if (gpuStats) gpuStats.read(); // start nvidia-smi now so the first sample has GPU numbers
     setTimeout(sampleStats, 350);
     statsTimer = setInterval(sampleStats, 2000);
   } else if (!on && statsTimer) {
@@ -1906,6 +1898,7 @@ app.whenReady().then(() => {
   settings = new Settings(app.getPath('userData'));
   if (settings.damaged) log(`settings.json was damaged (kept as settings.json.broken); ${settings.loadedFrom === 'backup' ? 'restored from settings.json.bak' : 'no backup, using defaults'}`);
   gpuPath = findNvidiaSmi();
+  gpuStats = gpuPath ? new GpuStats({ exe: gpuPath, spawn, log }) : null;
   loadShelf();
   registerIpc();
   createIsland();
@@ -2018,6 +2011,7 @@ app.on('will-quit', () => {
   globalShortcut.unregisterAll();
   if (subs) subs.dispose();
   if (gaming) gaming.dispose();
+  if (gpuStats) gpuStats.stop();
   // the phone link first: closing a Bluetooth link still talks to the helper
   if (kde) kde.stop();
   if (helper) helper.stop();

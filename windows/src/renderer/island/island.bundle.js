@@ -1762,6 +1762,7 @@
       bind(el, "clock", ctx2.i.clock());
       const w = d.weather && d.weather.current;
       if (w) bind(el, "temp", ctx2.i.temp(w.temp));
+      if (el.classList.contains("hot") !== !!d.hover) el.classList.toggle("hot", !!d.hover);
       const dots = el.querySelector(".pdots");
       if (dots) {
         const html = pdots(d.privacy);
@@ -4071,11 +4072,22 @@
   function topOffset() {
     return state.settings.style === "notch" && !state.settings.position ? 0 : clamp(Number(state.settings.topOffset) || 0, 0, 80);
   }
+  var styleCache = /* @__PURE__ */ new WeakMap();
+  function setStyle(el, prop, value) {
+    let c = styleCache.get(el);
+    if (!c) {
+      c = {};
+      styleCache.set(el, c);
+    }
+    if (c[prop] === value) return;
+    c[prop] = value;
+    el.style[prop] = value;
+  }
   function placeBox(el, x, y, w, hh, r, notch) {
-    el.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0)`;
-    el.style.width = `${Math.max(0, w).toFixed(2)}px`;
-    el.style.height = `${Math.max(0, hh).toFixed(2)}px`;
-    el.style.borderRadius = notch ? `0 0 ${r.toFixed(2)}px ${r.toFixed(2)}px` : `${r.toFixed(2)}px`;
+    setStyle(el, "transform", `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0)`);
+    setStyle(el, "width", `${Math.max(0, w).toFixed(2)}px`);
+    setStyle(el, "height", `${Math.max(0, hh).toFixed(2)}px`);
+    setStyle(el, "borderRadius", notch ? `0 0 ${r.toFixed(2)}px ${r.toFixed(2)}px` : `${r.toFixed(2)}px`);
   }
   function layout(values) {
     const S = scale();
@@ -4101,7 +4113,7 @@
     placeBox(els.mainShadow, L.left, L.top, L.w, L.h, L.r, notch);
     const bVisible = L.bs > 0.6;
     for (const el of [els.bubbleFill, els.bubbleClip, els.bubbleShadow]) {
-      el.style.display = bVisible ? "block" : "none";
+      setStyle(el, "display", bVisible ? "block" : "none");
       if (bVisible) placeBox(el, L.bLeft, L.bTop, L.bs, L.bs, L.bs / 2, false);
     }
     els.goo.classList.toggle("goo-on", !(geo.bs.resting && geo.bx.resting));
@@ -4111,8 +4123,8 @@
     const S = scale();
     const bw = gw + GLOW_PAD_X * 2 * S;
     const bh = L.h + GLOW_PAD_Y * 2 * S;
-    els.glow.style.transform = `translate3d(${(L.left + gw / 2).toFixed(1)}px, ${(L.top + L.h / 2).toFixed(1)}px, 0) translate(-50%, -50%) scale(${(bw / GLOW_W * breathe).toFixed(3)}, ${(bh / GLOW_H * breathe).toFixed(3)})`;
-    els.glow.style.opacity = String(clamp(geo.glow.value, 0, 1));
+    setStyle(els.glow, "transform", `translate3d(${(L.left + gw / 2).toFixed(1)}px, ${(L.top + L.h / 2).toFixed(1)}px, 0) translate(-50%, -50%) scale(${(bw / GLOW_W * breathe).toFixed(3)}, ${(bh / GLOW_H * breathe).toFixed(3)})`);
+    setStyle(els.glow, "opacity", String(clamp(geo.glow.value, 0, 1)));
     vizFrame(now);
   }
   function isLive(m) {
@@ -4448,7 +4460,7 @@
     updateGlow();
     updateMeterSubscription();
     sendRects(target, bubbleOn);
-    document.body.dataset.view = mainName;
+    if (document.body.dataset.view !== mainName) document.body.dataset.view = mainName;
     syncGamingPanel();
     animator.kick();
   }

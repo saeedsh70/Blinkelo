@@ -156,6 +156,8 @@ export const idle = {
     bind(el, 'clock', ctx.i.clock());
     const w = d.weather && d.weather.current;
     if (w) bind(el, 'temp', ctx.i.temp(w.temp));
+    // the weather icon animates only while hovered: an endless animation kept the always-on-top window redrawing 24/7
+    if (el.classList.contains('hot') !== !!d.hover) el.classList.toggle('hot', !!d.hover);
     const dots = el.querySelector('.pdots');
     if (dots) {
       const html = pdots(d.privacy);

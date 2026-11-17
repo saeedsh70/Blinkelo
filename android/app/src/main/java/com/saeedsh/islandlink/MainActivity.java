@@ -34,6 +34,7 @@ public class MainActivity extends Activity implements UiBus.Sink {
     private String pendingRoute;
     private String pendingSharePeer;
     volatile String volumeMode = "off";
+    private volatile boolean visible;
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override protected void onCreate(Bundle state) {
@@ -135,6 +136,29 @@ public class MainActivity extends Activity implements UiBus.Sink {
                 .p("pc", new Json.Obj()).p("devices", new Json.Arr()));
     }
 
+    // Off screen: pause the WebView and its timers and let the page end its live subscriptions (the PC otherwise kept
+    // streaming stats every 2 s to a hidden page). State-like events are not pushed meanwhile; UiBus caches them and
+    // the page reads them back when it is visible again. One-off events (pair request, transfer result...) still arrive.
+    @Override protected void onStart() {
+        super.onStart();
+        visible = true;
+        if (web != null) {
+            web.onResume();
+            web.resumeTimers();
+            if (pageReady) web.evaluateJavascript("window.__island&&__island.visible&&__island.visible(true)", null);
+        }
+    }
+
+    @Override protected void onStop() {
+        visible = false;
+        if (web != null) {
+            if (pageReady) web.evaluateJavascript("window.__island&&__island.visible&&__island.visible(false)", null);
+            web.onPause();
+            web.pauseTimers();
+        }
+        super.onStop();
+    }
+
     @Override protected void onDestroy() {
         UiBus.setSink(null);
         pageReady = false;
@@ -144,7 +168,7 @@ public class MainActivity extends Activity implements UiBus.Sink {
 
     // ------------------------------------------------------------------ events → JS
     @Override public void emit(final String event, final String json) {
-        if (web == null) return;
+        if (web == null || (!visible && UiBus.isCached(event))) return;
         runOnUiThread(new Runnable() {
             public void run() {
                 if (!pageReady || web == null) return;

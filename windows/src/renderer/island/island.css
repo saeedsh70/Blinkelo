@@ -594,6 +594,9 @@ body.moving, body.moving * { cursor: grabbing !important; }
 @keyframes wx-flash { 0%, 86%, 100% { opacity: 1; } 89% { opacity: .35; } 92% { opacity: 1; } 95% { opacity: .5; } }
 
 /* idle: weather next to the clock */
+/* the idle pill is on screen all the time: its weather icon moves only while hovered (see views.js idle.update) */
+.idle-wx .wx-ic .ic { animation-play-state: paused; }
+.cmp.idle.hot .idle-wx .wx-ic .ic { animation-play-state: running; }
 .idle-wx { margin-inline-start: auto; display: flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 600; color: var(--fg2); white-space: nowrap; }
 
 /* minimized handle */

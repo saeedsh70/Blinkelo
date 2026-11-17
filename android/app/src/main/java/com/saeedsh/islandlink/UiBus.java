@@ -33,6 +33,9 @@ public final class UiBus {
 
     public static void forget(String event) { LAST.remove(event); }
 
+    /** State-like events are cached here, so a page that was off screen can read them later instead of live. */
+    public static boolean isCached(String event) { return CACHED.contains(event); }
+
     /** Snapshot of all cached events, sent to the UI when it (re)loads. */
     public static String snapshot() {
         StringBuilder sb = new StringBuilder("{");
