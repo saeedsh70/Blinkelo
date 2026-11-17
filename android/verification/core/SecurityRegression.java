@@ -58,6 +58,14 @@ public class SecurityRegression {
         second.bt.close();check(c.activeDevice()==null,"disconnected selected PC does not silently fall back to another");
         check(c.selectDevice(a)&&c.activeDevice()==first,"user can select the remaining paired PC");
         check(!c.selectDevice("unknown"),"unknown PC cannot become selected");
+        second.bt=new BtLink(bi,new Link.LineReader(new ByteArrayInputStream(new byte[0]),1024),new ByteArrayOutputStream(),()->{},"B2",dir,s->{});
+        check(c.activeDevice()==first,"a reconnecting PC does not take over the selection");
+        c.unpair(a);
+        check(c.activeDevice()==second,"after unpairing the selected PC the remaining paired PC becomes active");
+        c.preferDevice("c".repeat(32));
+        check(c.activeDevice()==second,"a saved selection of a PC that is no longer paired does not block the paired one");
+        second.bt.close();
+        check(c.activeDevice()==null,"the new selection still does not silently fall back when it disconnects");
         al.close();bl.close();c.close();
         System.out.println("ALL "+checks+" SECURITY/POLICY CHECKS PASSED");
     }

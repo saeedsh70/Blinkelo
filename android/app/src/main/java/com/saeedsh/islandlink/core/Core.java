@@ -765,6 +765,7 @@ public final class Core implements Closeable {
         synchronized (this) {
             d = devices.get(id);
             trusted.remove(id);
+            if (id != null && id.equals(preferredDeviceId)) preferredDeviceId = "";
         }
         saveTrusted();
         if (d != null) {
@@ -889,11 +890,16 @@ public final class Core implements Closeable {
 
     public synchronized Device device(String id) { return id == null ? null : devices.get(id); }
 
-    /** Keep the chosen peer until the user selects another; disconnection must not reroute commands. */
+    /**
+     * Keep the chosen peer until the user selects another; disconnection must not reroute commands.
+     * A choice that points at a PC which is no longer paired (unpaired here or by the PC, or a stale saved id)
+     * is dropped, so the next paired PC can become active instead of nothing ever being active again.
+     */
     public synchronized Device activeDevice() {
         if (!preferredDeviceId.isEmpty()) {
             Device selected = devices.get(preferredDeviceId);
-            return selected != null && selected.paired && selected.connected() ? selected : null;
+            if (selected != null && selected.paired) return selected.connected() ? selected : null;
+            preferredDeviceId = "";
         }
         Device best = null;
         for (Device d : devices.values()) {

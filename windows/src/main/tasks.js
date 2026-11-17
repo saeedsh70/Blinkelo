@@ -2,15 +2,17 @@
 // Planner tasks: stored as JSON in userData, with time-based reminders. The list is shared with the
 // Blinkelo Link phone app: every change carries an `updated` stamp, deletions leave tombstones, and both
 // sides merge last-writer-wins per task.
-const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { EventEmitter } = require('events');
+const { readJson, writeJson } = require('./jsonfile');
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 const COLORS = ['blue', 'green', 'orange', 'red', 'purple', 'pink', 'teal'];
 const TOMBSTONE_KEEP = 30 * 86400000;
+// old files are a bare array, newer ones { tasks, tombstones }
+const validTasksFile = (j) => Array.isArray(j) || (!!j && typeof j === 'object' && Array.isArray(j.tasks));
 
 class Tasks extends EventEmitter {
   constructor(dir, log) {
@@ -25,7 +27,9 @@ class Tasks extends EventEmitter {
 
   load() {
     try {
-      const j = JSON.parse(fs.readFileSync(this.file, 'utf8'));
+      const saved = readJson(this.file, { backup: true, valid: validTasksFile });
+      if (saved.damaged) this.log(`tasks.json was damaged (kept as .broken)${saved.from === 'backup' ? ', restored from backup' : ''}`);
+      const j = saved.value === undefined ? [] : saved.value;
       const arr = Array.isArray(j) ? j : (j && Array.isArray(j.tasks) ? j.tasks : []);
       this.list = arr.filter((t) => t && t.id && ISO.test(t.date));
       for (const t of this.list) if (!t.updated) t.updated = t.created || Date.now();
@@ -40,9 +44,7 @@ class Tasks extends EventEmitter {
     const cutoff = Date.now() - TOMBSTONE_KEEP;
     for (const [id, at] of Object.entries(this.tombstones)) if (at < cutoff) delete this.tombstones[id];
     try {
-      const tmp = `${this.file}.tmp`;
-      fs.writeFileSync(tmp, JSON.stringify({ tasks: this.list, tombstones: this.tombstones }, null, 1));
-      fs.renameSync(tmp, this.file);
+      writeJson(this.file, { tasks: this.list, tombstones: this.tombstones }, { space: 1, backup: true, valid: validTasksFile });
     } catch (e) {
       this.log('tasks save failed', e.message);
     }

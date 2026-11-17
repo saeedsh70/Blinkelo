@@ -1,8 +1,8 @@
 'use strict';
-const fs = require('fs');
 const path = require('path');
 const { EventEmitter } = require('events');
 const { LANGS } = require('../shared/strings');
+const { readJson, writeJson, isObject } = require('./jsonfile');
 
 const SUPPORTED_LANGS = LANGS.map((l) => l.code);
 
@@ -154,10 +154,11 @@ class Settings extends EventEmitter {
     super();
     this.file = path.join(dir, 'settings.json');
     this.data = deepMerge(DEFAULTS, {});
-    try {
-      const raw = JSON.parse(fs.readFileSync(this.file, 'utf8'));
-      this.data = deepMerge(DEFAULTS, raw);
-    } catch (_) { /* first run */ }
+    // nothing usable = first run; a damaged file is read from settings.json.bak (and kept as settings.json.broken)
+    const { value, from, damaged } = readJson(this.file, { backup: true, valid: isObject });
+    if (value !== undefined) this.data = deepMerge(DEFAULTS, value);
+    this.loadedFrom = from;      // 'file' | 'backup' | null
+    this.damaged = !!damaged;    // the main file existed but could not be read
     this.normalize();
   }
 
@@ -184,8 +185,7 @@ class Settings extends EventEmitter {
 
   save() {
     try {
-      fs.mkdirSync(path.dirname(this.file), { recursive: true });
-      fs.writeFileSync(this.file, JSON.stringify(this.data, null, 2));
+      writeJson(this.file, this.data, { space: 2, backup: true, valid: isObject });
     } catch (e) {
       console.error('settings save failed', e);
     }

@@ -9,6 +9,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 const { EventEmitter } = require('events');
 const { publicKey } = require('./deck');
+const { writeJson } = require('./jsonfile');
 
 const BUILTIN_COMMANDS = {
   'island.lock': 'Lock', 'island.sleep': 'Sleep', 'island.monitoroff': 'Screen off',
@@ -568,8 +569,7 @@ class PhoneLink extends EventEmitter {
     for (const [id, at] of Object.entries(this.timerTombstones)) if (at < cutoff) delete this.timerTombstones[id];
     if (this.timerFile) {
       try {
-        fs.writeFileSync(this.timerFile + '.tmp', JSON.stringify({timers: [...this.timers.values()], tombstones: this.timerTombstones}));
-        fs.renameSync(this.timerFile + '.tmp', this.timerFile);
+        writeJson(this.timerFile, {timers: [...this.timers.values()], tombstones: this.timerTombstones});
       } catch (error) { if (this.log) this.log('timer save failed ' + error.message); }
     }
     this.toIsland('phone', {type: 'timerList', timers: [...this.timers.values()]});

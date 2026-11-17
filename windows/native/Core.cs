@@ -2221,6 +2221,11 @@ namespace IslandNative
         private static readonly Dictionary<long, string> ActiveCalls = new Dictionary<long, string>();
         private static volatile string _recentRequest;
         private static bool _usingCopy;
+        // snapshot mode: what the live files looked like when the current snapshot was taken, and when
+        private static string _snapStamp;
+        private static long _snapAt;
+        private static readonly Stopwatch SnapClock = Stopwatch.StartNew();
+        private const long SnapshotMaxAgeMs = 15000;
 
         public static void Start()
         {
@@ -2239,12 +2244,36 @@ namespace IslandNative
             _db = IntPtr.Zero;
         }
 
-        private static bool OpenDb()
+        // Size and write time of the live database and its WAL: a change means there may be new notifications.
+        private static string LiveStamp()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (string f in new string[] { _dbPath, _dbPath + "-wal" })
+            {
+                try
+                {
+                    FileInfo fi = new FileInfo(f);
+                    if (fi.Exists) sb.Append(fi.Length).Append('@').Append(fi.LastWriteTimeUtc.Ticks);
+                    else sb.Append('-');
+                }
+                catch { sb.Append('?'); }
+                sb.Append('|');
+            }
+            return sb.ToString();
+        }
+
+        private static string SnapshotPath()
+        {
+            return Path.Combine(Path.GetTempPath(), "Blinkelo", "thumbs", "wpn-snapshot.db");
+        }
+
+        // copySnapshot: in snapshot mode, take a fresh copy first (false = reopen the existing, still current copy)
+        private static bool OpenDb(bool copySnapshot)
         {
             CloseDb();
             if (!File.Exists(_dbPath)) throw new Exception("notification database not found: " + _dbPath);
             string path = _dbPath;
-            if (_usingCopy) path = CopyDb();
+            if (_usingCopy) path = copySnapshot ? CopyDb() : SnapshotPath();
             IntPtr db;
             int rc = Sqlite.Open(Sqlite.Utf8Z(path), out db, Sqlite.SQLITE_OPEN_READONLY, IntPtr.Zero);
             if (rc != Sqlite.SQLITE_OK)
@@ -2261,9 +2290,8 @@ namespace IslandNative
         // Fallback when the live DB cannot be read directly: read a snapshot copy (db + wal).
         private static string CopyDb()
         {
-            string dir = Path.Combine(Path.GetTempPath(), "Blinkelo", "thumbs");
-            Directory.CreateDirectory(dir);
-            string dst = Path.Combine(dir, "wpn-snapshot.db");
+            string dst = SnapshotPath();
+            Directory.CreateDirectory(Path.GetDirectoryName(dst));
             CopyShared(_dbPath, dst);
             if (File.Exists(_dbPath + "-wal")) CopyShared(_dbPath + "-wal", dst + "-wal");
             else if (File.Exists(dst + "-wal")) File.Delete(dst + "-wal");
@@ -2306,7 +2334,20 @@ namespace IslandNative
             {
                 try
                 {
-                    if (_usingCopy || _db == IntPtr.Zero) OpenDb();
+                    string stamp = null;
+                    if (_usingCopy)
+                    {
+                        // Snapshot mode copies the whole database (it can be tens of MB). Copy only when the live files
+                        // changed, plus every 15 s as a safety net in case a timestamp is not updated; otherwise there is
+                        // nothing new to read, so skip the poll unless the island asked for recent notifications.
+                        stamp = LiveStamp();
+                        bool current = stamp == _snapStamp && SnapClock.ElapsedMilliseconds - _snapAt < SnapshotMaxAgeMs
+                            && File.Exists(SnapshotPath());
+                        if (current && _recentRequest == null) { Thread.Sleep(1500); continue; }
+                        OpenDb(!current);
+                        if (current) stamp = null; // nothing was copied: keep the old stamp and age
+                    }
+                    else if (_db == IntPtr.Zero) OpenDb(false);
                     if (_lastArrival < 0) SeedCursor();
                     Poll();
                     CheckCalls();
@@ -2315,6 +2356,7 @@ namespace IslandNative
                     if (!reported) { reported = true; Out.Status("notifications", true, _usingCopy ? "ok (snapshot mode)" : "ok"); }
                     failures = 0;
                     if (_usingCopy) CloseDb();
+                    if (stamp != null) { _snapStamp = stamp; _snapAt = SnapClock.ElapsedMilliseconds; } // only after a good read
                 }
                 catch (Exception ex)
                 {

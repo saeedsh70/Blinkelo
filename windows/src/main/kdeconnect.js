@@ -14,6 +14,7 @@ const path = require('path');
 const { EventEmitter } = require('events');
 const { Transform, Writable } = require('stream');
 const { pipeline } = require('stream/promises');
+const { readJson, writeJson, isObject } = require('./jsonfile');
 
 const UDP_PORT = 1716;
 const MIN_PORT = 1716;
@@ -139,17 +140,23 @@ function safeName(n) {
   return s.slice(-150);
 }
 
-function uniquePath(dir, name) {
+// A free file name in dir. `taken` holds names already promised to downloads that are still running: the file
+// only appears when a download completes, so without it two same-name files arriving together got the same
+// path and the second one replaced the first.
+function uniquePath(dir, name, taken = new Set()) {
+  const free = (p) => !taken.has(pathKey(p)) && !fs.existsSync(p);
   let p = path.join(dir, name);
-  if (!fs.existsSync(p)) return p;
+  if (free(p)) return p;
   const ext = path.extname(name);
   const stem = name.slice(0, name.length - ext.length);
   for (let i = 2; i < 1000; i += 1) {
     p = path.join(dir, `${stem} (${i})${ext}`);
-    if (!fs.existsSync(p)) return p;
+    if (free(p)) return p;
   }
-  return path.join(dir, `${stem}-${Date.now()}${ext}`);
+  return path.join(dir, `${stem}-${Date.now()}-${crypto.randomBytes(3).toString('hex')}${ext}`);
 }
+// Windows file names are case-insensitive
+function pathKey(p) { return process.platform === 'win32' ? path.resolve(p).toLowerCase() : path.resolve(p); }
 
 // ------------------------------------------------------------------------------------------------ links
 class Link extends EventEmitter {
@@ -462,6 +469,7 @@ class KdeConnect extends EventEmitter {
     this.dir = dir;
     this.log = log || (() => {});
     this.downloadDir = downloadDir || (() => path.join(os.homedir(), 'Downloads', 'Blinkelo'));
+    this.incomingPaths = new Set(); // destinations of downloads in progress (pathKey), see uniquePath
     this.links = new Map();         // deviceId -> LAN Link
     this.btLinks = new Map();       // deviceId -> BtLink
     this.btPending = new Map();     // bt address -> { buf, timer }
@@ -483,15 +491,22 @@ class KdeConnect extends EventEmitter {
   loadIdentity() {
     fs.mkdirSync(this.dir, { recursive: true });
     const idFile = path.join(this.dir, 'identity.json');
-    try {
-      const j = JSON.parse(fs.readFileSync(idFile, 'utf8'));
-      if (DEVICE_ID_RE.test(j.deviceId) && j.certPem && j.keyPem) {
-        const x = new crypto.X509Certificate(j.certPem);
-        if (new Date(x.validTo) > new Date() && x.subject.includes(`CN=${j.deviceId}`)) {
-          Object.assign(this, { deviceId: j.deviceId, certPem: j.certPem, keyPem: j.keyPem });
-        }
-      }
-    } catch (_) { /* create new */ }
+    // Losing the identity breaks every pairing (phones refuse a changed certificate), so it is kept twice and a
+    // damaged identity.json is restored from identity.json.bak.
+    const wellFormed = (j) => {
+      if (!isObject(j) || !DEVICE_ID_RE.test(String(j.deviceId || '')) || typeof j.certPem !== 'string' || typeof j.keyPem !== 'string') return false;
+      try { return new crypto.X509Certificate(j.certPem).subject.includes(`CN=${j.deviceId}`); } catch (_) { return false; }
+    };
+    const saved = readJson(idFile, { backup: true, valid: wellFormed });
+    if (saved.damaged) this.log(`kdeconnect: identity.json was damaged (kept as .broken)${saved.from === 'backup' ? ', restored from backup' : ''}`);
+    const j = saved.value;
+    if (j && new Date(new crypto.X509Certificate(j.certPem).validTo) > new Date()) {
+      Object.assign(this, { deviceId: j.deviceId, certPem: j.certPem, keyPem: j.keyPem });
+      try {
+        if (saved.from === 'backup') writeJson(idFile, j);
+        if (!fs.existsSync(`${idFile}.bak`)) writeJson(`${idFile}.bak`, j);
+      } catch (e) { this.log(`kdeconnect: identity backup failed ${e.message}`); }
+    }
     if (!this.deviceId) {
       const forge = require('node-forge');
       this.deviceId = crypto.randomUUID().replace(/-/g, '');
@@ -513,20 +528,24 @@ class KdeConnect extends EventEmitter {
       cert.sign(key, forge.md.sha256.create());
       this.certPem = forge.pki.certificateToPem(cert);
       this.keyPem = privateKey;
-      fs.writeFileSync(idFile, JSON.stringify({ deviceId: this.deviceId, certPem: this.certPem, keyPem: this.keyPem }));
+      const identity = { deviceId: this.deviceId, certPem: this.certPem, keyPem: this.keyPem };
+      writeJson(idFile, identity);
+      try { writeJson(`${idFile}.bak`, identity); } catch (e) { this.log(`kdeconnect: identity backup failed ${e.message}`); }
       this.log(`kdeconnect: generated identity ${this.deviceId}`);
     }
     const x509 = new crypto.X509Certificate(this.certPem);
     this.ownSpki = x509.publicKey.export({ type: 'spki', format: 'der' });
     this.ownCertDer = x509.raw;
-    try { this.trusted = JSON.parse(fs.readFileSync(path.join(this.dir, 'trusted.json'), 'utf8')) || {}; } catch (_) { this.trusted = {}; }
+    const trusted = readJson(path.join(this.dir, 'trusted.json'), { backup: true, valid: isObject });
+    if (trusted.damaged) this.log(`kdeconnect: trusted.json was damaged (kept as .broken)${trusted.from === 'backup' ? ', restored from backup' : ', paired devices lost'}`);
+    this.trusted = trusted.value || {};
     for (const [id, t] of Object.entries(this.trusted)) {
       this.devices.set(id, { id, name: t.name, type: t.type, connected: false, paired: true, pairState: 'paired', island: t.island || null });
     }
   }
 
   saveTrusted() {
-    try { fs.writeFileSync(path.join(this.dir, 'trusted.json'), JSON.stringify(this.trusted, null, 2)); } catch (e) { this.log(`kdeconnect: save trusted failed ${e.message}`); }
+    try { writeJson(path.join(this.dir, 'trusted.json'), this.trusted, { space: 2, backup: true, valid: isObject }); } catch (e) { this.log(`kdeconnect: save trusted failed ${e.message}`); }
   }
 
   get deviceName() {
@@ -1235,16 +1254,23 @@ class KdeConnect extends EventEmitter {
     const dir = this.downloadDir();
     try { fs.mkdirSync(dir, { recursive: true }); } catch (_) { /* ignore */ }
     const name = safeName(body.filename || 'file');
-    const file = uniquePath(dir, name);
+    const file = uniquePath(dir, name, this.incomingPaths);
+    const key = pathKey(file);
+    this.incomingPaths.add(key);
     const tid = crypto.randomBytes(4).toString('hex');
     const size = Number(p.payloadSize) || 0;
     const camera = !!(body.island && body.island.camera);
     this.emit('shareProgress', { ...from, tid, name, done: 0, total: size, state: 'active' });
     let last = 0;
-    const ok = await this.fetchPayloadToFile(link, p, file, (got, total) => {
-      const now = Date.now();
-      if (now - last > 250 || got >= total) { last = now; this.emit('shareProgress', { ...from, tid, name, done: got, total, state: 'active' }); }
-    });
+    let ok = false;
+    try {
+      ok = await this.fetchPayloadToFile(link, p, file, (got, total) => {
+        const now = Date.now();
+        if (now - last > 250 || got >= total) { last = now; this.emit('shareProgress', { ...from, tid, name, done: got, total, state: 'active' }); }
+      });
+    } finally {
+      this.incomingPaths.delete(key);
+    }
     if (typeof body.transferId === 'string' && body.transferId.length <= 128) link.send('island.transfer.result', { id: body.transferId, ok });
     this.emit('shareProgress', { ...from, tid, name, state: ok ? 'done' : 'failed' });
     if (ok) this.emit('share', { ...from, kind: 'file', path: file, name: path.basename(file), size, camera });

@@ -368,7 +368,22 @@ public class LinkService extends Service implements Core.Events {
 
     @Override public void onUnpaired(final Core.Device d) {
         Util.main(new Runnable() {
-            public void run() { if (!destroyed) UiBus.emit("pairResult", d.toJson().p("ok", false).p("reason", "unpaired")); }
+            public void run() {
+                if (destroyed) return;
+                // The active PC was unpaired (here or by the PC): forget it, drop its data and let another
+                // paired PC take over, like a manual selection does. Otherwise nothing would ever be active again.
+                if (d.id.equals(Settings.state(LinkService.this, "activePeer", ""))) {
+                    Settings.setState(LinkService.this, "activePeer", "");
+                    if (plugins != null) plugins.clearPeer();
+                    Core.Device next = active();
+                    if (next != null) {
+                        Settings.setState(LinkService.this, "activePeer", next.id);
+                        plugins.onConnected(next);
+                    }
+                    refreshServiceNotification();
+                }
+                UiBus.emit("pairResult", d.toJson().p("ok", false).p("reason", "unpaired"));
+            }
         });
     }
 

@@ -27,7 +27,7 @@ function record(id, description, observed) { evidence.push({id,description,obser
   const extra=queue.find(t=>t.ms===2550);assert.equal(extra,undefined);
   assert.equal(children.length,2);record('W-01','One manual helper restart spawns two replacement processes',{spawned:children.length,expected:2});
 
-  const {Tasks}=load('src/main/tasks.js');
+  const {Tasks}=load('src/main/tasks.js',{'./jsonfile':require('../src/main/jsonfile')});
   const dir=fs.mkdtempSync(path.join(require('os').tmpdir(),'island-task-test-'));
   fs.writeFileSync(path.join(dir,'tasks.json'),JSON.stringify({tasks:[],tombstones:{}}));
   const t=new Tasks(dir); const id='previously-unknown';const at=Date.now();

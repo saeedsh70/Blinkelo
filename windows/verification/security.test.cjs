@@ -91,6 +91,32 @@ test('payload receivers save valid bytes and empty files through authenticated s
   assert.equal(fs.statSync(file).size,0);
   await new Promise(r=>server.close(r));l.close();
 });
+test('two incoming files with the same name are both kept', {timeout:15000}, async()=>{
+  const l=link(pc,phone);
+  const dir=path.join(work,'downloads'), previousDir=pc.downloadDir;
+  pc.downloadDir=()=>dir;
+  const serve=async(logical,bytes)=>{
+    const server=tls.createServer({...phone.tlsOptions(),requestCert:true},s=>{s.on('error',()=>{});s.end(bytes);});
+    await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
+    ports.set(logical,server.address().port);return server;
+  };
+  const servers=[await serve(1741,Buffer.from('first photo')),await serve(1742,Buffer.from('second photo!'))];
+  const shared=[];const onShare=e=>shared.push(e);pc.on('share',onShare);
+  try {
+    // both requests arrive together (the phone sends several files at once), so both pick a name before either is saved
+    await Promise.all([
+      pc.onShare(l,{payloadSize:11,payloadTransferInfo:{port:1741}},{filename:'photo.jpg'}),
+      pc.onShare(l,{payloadSize:13,payloadTransferInfo:{port:1742}},{filename:'photo.jpg'}),
+    ]);
+    const files=fs.readdirSync(dir).sort();
+    assert.deepEqual(files,['photo (2).jpg','photo.jpg']);
+    assert.deepEqual(files.map(f=>fs.readFileSync(path.join(dir,f),'utf8')).sort(),['first photo','second photo!']);
+    assert.equal(new Set(shared.map(e=>e.path)).size,2);
+  } finally {
+    pc.off('share',onShare);pc.downloadDir=previousDir;
+    await Promise.all(servers.map(s=>new Promise(r=>s.close(r))));l.close();
+  }
+});
 test('Bluetooth payloads are paired-only, bounded, exact, ordered, and support empty files',()=>{
   const l=link(pc,phone,true), events=[];l.on('packet',p=>events.push(p));
   const header=(tid,size)=>l.line(JSON.stringify({type:'kdeconnect.share.request',body:{},payloadSize:size,payloadTransferInfo:{bt:tid}}));

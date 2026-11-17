@@ -13,6 +13,7 @@ const { EventEmitter } = require('events');
 
 // ------------------------------------------------------------------ languages
 const { LANGS } = require('../shared/sub-langs');
+const { writeJson } = require('./jsonfile');
 const LANG_BY_CODE = new Map(LANGS.map((l) => [l.code, l]));
 function langInfo(code) { return LANG_BY_CODE.get(String(code || '').toLowerCase()) || null; }
 
@@ -658,8 +659,7 @@ class SubtitleFinder extends EventEmitter {
       keys.sort((a, b) => (this.index[a].at || 0) - (this.index[b].at || 0)).slice(0, keys.length - 300).forEach((k) => delete this.index[k]);
     }
     try {
-      fs.mkdirSync(path.dirname(this.indexFile), { recursive: true });
-      fs.writeFileSync(this.indexFile, JSON.stringify(this.index));
+      writeJson(this.indexFile, this.index, { fsync: false }); // a cache: atomic is enough
     } catch (e) { this.log('subtitle index save failed', e.message); }
   }
 

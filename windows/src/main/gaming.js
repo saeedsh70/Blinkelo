@@ -8,6 +8,7 @@ const { EventEmitter } = require('events');
 
 const IS_WIN = process.platform === 'win32';
 const gamelib = require('./gamelib');
+const { writeJson } = require('./jsonfile');
 
 // ------------------------------------------------------------------ what is (not) a game
 const NON_GAMES = new Set([
@@ -262,8 +263,7 @@ class Gaming extends EventEmitter {
     try {
       const f = path.join(this.dir, name);
       if (value === null) { fs.rmSync(f, { force: true }); return; }
-      fs.mkdirSync(this.dir, { recursive: true });
-      fs.writeFileSync(f, JSON.stringify(value, null, 1));
+      writeJson(f, value, { space: 1 }); // atomic: the optimizer's undo list must survive a crash
     } catch (e) { this.log('gaming save failed', e.message); }
   }
 

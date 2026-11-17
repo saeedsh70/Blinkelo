@@ -9,6 +9,7 @@ const os = require('os');
 const crypto = require('crypto');
 const { spawn, execFile } = require('child_process');
 const { Settings } = require('./settings');
+const { writeJson } = require('./jsonfile');
 const { HelperBridge } = require('./helper');
 const { KdeConnect } = require('./kdeconnect');
 const { Weather, searchCity } = require('./weather');
@@ -768,7 +769,7 @@ function addShelfPaths(paths) {
 }
 
 function saveShelf() {
-  try { fs.writeFileSync(shelfFile(), JSON.stringify(shelf.map(({ path: p, name, addedAt, size, isDir }) => ({ path: p, name, addedAt, size, isDir })))); } catch (_) { /* ignore */ }
+  try { writeJson(shelfFile(), shelf.map(({ path: p, name, addedAt, size, isDir }) => ({ path: p, name, addedAt, size, isDir }))); } catch (_) { /* ignore */ }
 }
 
 // Icons come from the shell through the helper (IShellItemImageFactory, then the system image list):
@@ -797,7 +798,7 @@ function rememberIcon(key, url) {
   const keys = Object.keys(d);
   if (keys.length > 300) for (const k of keys.slice(0, keys.length - 300)) delete d[k];
   clearTimeout(iconSaveTimer);
-  iconSaveTimer = setTimeout(() => { try { fs.writeFileSync(iconCacheFile(), JSON.stringify(d)); } catch (_) { /* ignore */ } }, 1500);
+  iconSaveTimer = setTimeout(() => { try { writeJson(iconCacheFile(), d, { fsync: false }); } catch (_) { /* ignore */ } }, 1500);
 }
 function helperReady() { return IS_WIN && helper && helper.ready; }
 function helperIcon(target, size, mode) {
@@ -1903,6 +1904,7 @@ app.whenReady().then(() => {
   if (profileMigration) log(`profile copied from ${profileMigration.from}: ${profileMigration.files} files, ${profileMigration.failed} failed`);
 
   settings = new Settings(app.getPath('userData'));
+  if (settings.damaged) log(`settings.json was damaged (kept as settings.json.broken); ${settings.loadedFrom === 'backup' ? 'restored from settings.json.bak' : 'no backup, using defaults'}`);
   gpuPath = findNvidiaSmi();
   loadShelf();
   registerIpc();
