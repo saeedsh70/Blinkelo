@@ -1,0 +1,37 @@
+name: 🐛 Bug report
+description: Something doesn't work as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead? Screenshots or a short clip help a lot.
+    validations:
+      required: true
+  - type: dropdown
+    id: app
+    attributes:
+      label: Which app?
+      options:
+        - Blinkelo for Windows
+        - Blinkelo Link (Android)
+        - Both / the connection between them
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: "e.g. Blinkelo 1.0.0, Blinkelo Link 1.0.0"
+  - type: input
+    id: system
+    attributes:
+      label: System
+      placeholder: "e.g. Windows 11 24H2, Samsung Galaxy S24 with Android 15"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs (optional)
+      description: "Windows log: %APPDATA%\\Blinkelo\\logs\\main.log. Please remove anything private before pasting."
+      render: text

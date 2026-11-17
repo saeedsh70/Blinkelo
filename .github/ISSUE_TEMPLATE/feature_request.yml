@@ -1,0 +1,16 @@
+name: ✨ Feature request
+description: Suggest an idea for Blinkelo or Blinkelo Link
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: What would you like Blinkelo to do, and why would it help you?
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Mockups, examples from other apps, links…
