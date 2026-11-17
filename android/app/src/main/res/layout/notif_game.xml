@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- collapsed game notification: big FPS + CPU / GPU bars -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="horizontal" android:gravity="center_vertical" android:layoutDirection="ltr">
+    <LinearLayout android:layout_width="wrap_content" android:minWidth="64dp" android:layout_height="wrap_content" android:orientation="vertical">
+        <TextView android:id="@+id/g_fps" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="24sp" android:textStyle="bold" android:includeFontPadding="false" android:text="–"/>
+        <TextView android:id="@+id/g_fps_l" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="10.5sp" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info" android:text="FPS"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="10dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="5dp">
+            <TextView android:layout_width="38dp" android:layout_height="wrap_content" android:text="CPU" android:textSize="11sp" android:textStyle="bold" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info"/>
+            <ProgressBar android:id="@+id/g_cpu_bar" style="@android:style/Widget.Material.ProgressBar.Horizontal" android:layout_width="0dp" android:layout_weight="1" android:layout_height="4dp" android:max="100" android:progressDrawable="@drawable/game_bar_cpu"/>
+            <TextView android:id="@+id/g_cpu_v" android:layout_width="wrap_content" android:minWidth="74dp" android:layout_height="wrap_content" android:gravity="end" android:textSize="11.5sp" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info"/>
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="5dp">
+            <TextView android:layout_width="38dp" android:layout_height="wrap_content" android:text="GPU" android:textSize="11sp" android:textStyle="bold" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info"/>
+            <ProgressBar android:id="@+id/g_gpu_bar" style="@android:style/Widget.Material.ProgressBar.Horizontal" android:layout_width="0dp" android:layout_weight="1" android:layout_height="4dp" android:max="100" android:progressDrawable="@drawable/game_bar_gpu"/>
+            <TextView android:id="@+id/g_gpu_v" android:layout_width="wrap_content" android:minWidth="74dp" android:layout_height="wrap_content" android:gravity="end" android:textSize="11.5sp" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

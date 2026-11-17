@@ -1,0 +1,32 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+*.swp
+
+# Windows app
+windows/node_modules/
+windows/dist/
+windows/out/
+*.log
+
+# packaged builds go to GitHub Releases, not the repository
+*.exe
+*.apk
+*.aab
+*.msi
+*.zip
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+*.iml
+
+# secrets
+*.jks
+*.keystore
+.env

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Blinkelo Link</string>
+    <string name="share_label">إرسال إلى الحاسوب</string>
+    <string name="tile_clipboard">إرسال الحافظة إلى الحاسوب</string>
+    <string name="tile_lock">قفل الحاسوب</string>
+    <string name="tile_remote">لوحة لمس الحاسوب</string>
+</resources>

@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-11-10T01:56:44.342Z",
+  "runtime": "Desktop JVM transport test against original Windows KdeConnect class; Android OS permissions and UI not exercised",
+  "results": [
+    {
+      "direction": "windows-initiates",
+      "passed": true,
+      "checks": [
+        "TLS + v8 secure identity",
+        "unpaired packet rejection",
+        "matching verification codes",
+        "pair both directions",
+        "battery",
+        "Unicode notification",
+        "quick reply",
+        "dismiss",
+        "MPRIS + controls",
+        "find phone",
+        "ping",
+        "pinned reconnect",
+        "changed certificate rejection",
+        "unpair"
+      ]
+    },
+    {
+      "direction": "android-initiates",
+      "passed": true,
+      "checks": [
+        "TLS + v8 secure identity",
+        "unpaired packet rejection",
+        "matching verification codes",
+        "pair both directions",
+        "battery",
+        "Unicode notification",
+        "quick reply",
+        "dismiss",
+        "MPRIS + controls",
+        "find phone",
+        "ping",
+        "pinned reconnect",
+        "changed certificate rejection",
+        "unpair"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- expanded game notification: game, play time, FPS / 1% low / frame time, CPU / GPU / RAM / VRAM bars, ping, GPU power -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="vertical" android:layoutDirection="ltr" android:paddingBottom="4dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+        <ImageView android:id="@+id/g_icon" android:layout_width="36dp" android:layout_height="36dp" android:scaleType="fitCenter" android:contentDescription="@null"/>
+        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="10dp">
+            <TextView android:id="@+id/g_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:singleLine="true" android:ellipsize="end" android:textAppearance="@android:style/TextAppearance.Material.Notification.Title" android:textStyle="bold"/>
+            <TextView android:id="@+id/g_sub" android:layout_width="match_parent" android:layout_height="wrap_content" android:singleLine="true" android:ellipsize="end" android:textSize="11.5sp" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info"/>
+        </LinearLayout>
+        <Chronometer android:id="@+id/g_time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="13sp" android:textStyle="bold" android:textAppearance="@android:style/TextAppearance.Material.Notification.Title"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="10dp" android:gravity="bottom">
+        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+            <TextView android:id="@+id/g_fps" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="30sp" android:textStyle="bold" android:includeFontPadding="false" android:text="–"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="10.5sp" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info" android:text="FPS"/>
+        </LinearLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+            <TextView android:id="@+id/g_low" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="20sp" android:textStyle="bold" android:includeFontPadding="false" android:text="–"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="10.5sp" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info" android:text="1% LOW"/>
+        </LinearLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+            <TextView android:id="@+id/g_ft" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="20sp" android:textStyle="bold" android:includeFontPadding="false" android:text="–"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="10.5sp" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info" android:text="FRAME ms"/>
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="6dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="5dp">
+            <TextView android:layout_width="38dp" android:layout_height="wrap_content" android:text="CPU" android:textSize="11sp" android:textStyle="bold" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info"/>
+            <ProgressBar android:id="@+id/g_cpu_bar" style="@android:style/Widget.Material.ProgressBar.Horizontal" android:layout_width="0dp" android:layout_weight="1" android:layout_height="5dp" android:max="100" android:progressDrawable="@drawable/game_bar_cpu"/>
+            <TextView android:id="@+id/g_cpu_v" android:layout_width="wrap_content" android:minWidth="74dp" android:layout_height="wrap_content" android:gravity="end" android:textSize="11.5sp" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info"/>
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="5dp">
+            <TextView android:layout_width="38dp" android:layout_height="wrap_content" android:text="GPU" android:textSize="11sp" android:textStyle="bold" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info"/>
+            <ProgressBar android:id="@+id/g_gpu_bar" style="@android:style/Widget.Material.ProgressBar.Horizontal" android:layout_width="0dp" android:layout_weight="1" android:layout_height="5dp" android:max="100" android:progressDrawable="@drawable/game_bar_gpu"/>
+            <TextView android:id="@+id/g_gpu_v" android:layout_width="wrap_content" android:minWidth="74dp" android:layout_height="wrap_content" android:gravity="end" android:textSize="11.5sp" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info"/>
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="5dp">
+            <TextView android:layout_width="38dp" android:layout_height="wrap_content" android:text="RAM" android:textSize="11sp" android:textStyle="bold" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info"/>
+            <ProgressBar android:id="@+id/g_ram_bar" style="@android:style/Widget.Material.ProgressBar.Horizontal" android:layout_width="0dp" android:layout_weight="1" android:layout_height="5dp" android:max="100" android:progressDrawable="@drawable/game_bar_ram"/>
+            <TextView android:id="@+id/g_ram_v" android:layout_width="wrap_content" android:minWidth="74dp" android:layout_height="wrap_content" android:gravity="end" android:textSize="11.5sp" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info"/>
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="5dp">
+            <TextView android:layout_width="38dp" android:layout_height="wrap_content" android:text="VRAM" android:textSize="11sp" android:textStyle="bold" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info"/>
+            <ProgressBar android:id="@+id/g_vram_bar" style="@android:style/Widget.Material.ProgressBar.Horizontal" android:layout_width="0dp" android:layout_weight="1" android:layout_height="5dp" android:max="100" android:progressDrawable="@drawable/game_bar_vram"/>
+            <TextView android:id="@+id/g_vram_v" android:layout_width="wrap_content" android:minWidth="74dp" android:layout_height="wrap_content" android:gravity="end" android:textSize="11.5sp" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info"/>
+        </LinearLayout>
+    </LinearLayout>
+    <TextView android:id="@+id/g_foot" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:textSize="11sp" android:textAppearance="@android:style/TextAppearance.Material.Notification.Info"/>
+</LinearLayout>

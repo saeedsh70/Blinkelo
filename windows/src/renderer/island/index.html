@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob: file: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'; media-src 'self' data:">
+  <title>Blinkelo</title>
+  <link rel="stylesheet" href="../shared/fonts.css">
+  <link rel="stylesheet" href="../shared/blink.css">
+  <link rel="stylesheet" href="island.css">
+</head>
+<body class="bk-boot bk-peek">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <filter id="goo" x="-10%" y="-40%" width="120%" height="180%" color-interpolation-filters="sRGB">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="5.5" result="blur" />
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -10" result="goo" />
+        <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+      </filter>
+    </defs>
+  </svg>
+  <div id="stage">
+    <div id="islandWrap">
+      <div id="glowLayer"><div id="glow"></div></div>
+      <div class="shadow" id="mainShadow"></div>
+      <div class="shadow" id="bubbleShadow"></div>
+      <div id="gooLayer">
+        <div class="fill" id="mainFill"></div>
+        <div class="fill" id="bubbleFill"></div>
+      </div>
+      <div class="clip" id="mainClip"><div id="edge"></div><div class="host" id="mainHost"></div><div id="bkFace" aria-hidden="true"></div><div id="bkLash" aria-hidden="true"></div></div>
+      <div class="clip" id="bubbleClip"><div class="host" id="bubbleHost"></div></div>
+    </div>
+  </div>
+  <script src="island.bundle.js"></script>
+</body>
+</html>

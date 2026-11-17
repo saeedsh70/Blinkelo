@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Blinkelo Link</string>
+    <string name="share_label">发送到电脑</string>
+    <string name="tile_clipboard">发送剪贴板到电脑</string>
+    <string name="tile_lock">锁定电脑</string>
+    <string name="tile_remote">电脑触控板</string>
+</resources>

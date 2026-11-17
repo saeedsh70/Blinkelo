@@ -1,0 +1,5 @@
+// Island Link — Android companion for Dynamic Island (Windows).
+// The only build dependency is the Android Gradle Plugin; the app itself uses no libraries.
+plugins {
+    id 'com.android.application' version '8.7.3' apply false
+}
