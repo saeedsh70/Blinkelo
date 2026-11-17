@@ -35,7 +35,7 @@ the extra features light up when both ends announce them in `island.hello`.
   Transcript fields are separated by newlines and end with a newline: `island.bt.auth.v2`, sender device ID, receiver device ID,
   sender nonce, receiver nonce, sender certificate SHA256 hex fingerprint, receiver certificate SHA256 hex fingerprint.
   Both proofs must verify before application messages. LAN trust can then be reused on Bluetooth without unpairing.
-  Legacy Bluetooth peers without proofs are rejected; upgrade both apps together (Android 1.0.3 / Windows 1.4.1).
+  Legacy Bluetooth peers without proofs are rejected; both apps must be from this release or newer.
 - The directional AES key is SHA256(seed || transcript). All subsequent packets (including pair requests and
   chunks) travel as `island.bt.frame {seq, data}` with AES-256-GCM. The 12-byte IV is four zero bytes followed by
   the sequence as an unsigned 64-bit big-endian integer; AAD is that direction's transcript. Data is base64
@@ -60,7 +60,7 @@ LAN payload TLS connection must present the same pinned certificate as its paire
 `island.hello` is exchanged right after a paired link comes up:
 
 ```json
-{ "app": "Blinkelo Link", "version": "1.0.3", "platform": "android", "model": "Samsung SM-S921B",
+{ "app": "Blinkelo Link", "version": "1.0.0", "platform": "android", "model": "Samsung SM-S921B",
   "features": ["mousepad", "presenter", "systemvolume", "runcommand", "sysinfo", "apps", "screenshot", "pcmedia",
                "tasks", "timers", "camera", "pcnotify", "findpc", "bluetooth", "clipboard-image", "transfer-ack"] }
 ```

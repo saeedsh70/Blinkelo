@@ -3251,7 +3251,7 @@
     ];
     const apps = ["Adobe Photoshop 2025", "Blender", "Calculator", "Discord", "Figma", "Firefox", "Google Chrome", "Microsoft Edge", "Notepad", "OBS Studio", "Paint", "Spotify", "Steam", "Telegram", "Terminal", "VLC media player", "Visual Studio Code", "Word", "Excel", "PowerPoint", "WhatsApp", "Zoom"].map((n, i) => ({ name: n, kind: i % 5 === 0 ? "aumid" : "file", target: `C:\\Apps\\${n}.lnk` }));
     const phoneData = {
-      me: { id: "pc", name: "DESKTOP-SAEED", port: 1716, ips: ["192.168.1.20"] },
+      me: { id: "pc", name: "My-PC", port: 1716, ips: ["192.168.1.20"] },
       devices: [
         { id: "p1", name: "Galaxy S24", type: "phone", address: "192.168.1.34", connected: true, paired: true, pairState: "paired", battery: 76, charging: true, wifi: true, bluetooth: true, island: { app: "Blinkelo Link" } },
         { id: "p2", name: "Pixel 8", type: "phone", address: "192.168.1.41", connected: true, paired: false, pairState: "requestedByPeer", verifyKey: "7F3A9C21" },
@@ -3271,7 +3271,7 @@
         return s;
       },
       reset: async () => s,
-      status: async () => ({ helper: { core: { ok: true, detail: "PowerShell 5.1.26100" }, media: { ok: true, detail: "ok" }, audio: { ok: true, detail: "ok" }, system: { ok: true, detail: "ok" }, notifications: { ok: true, detail: "ok" }, uia: { ok: true, detail: "ok" }, phone: { ok: true, detail: "listening on 1716 \xB7 3 devices" }, weather: { ok: true, detail: "London \xB7 17.6\xB0" } }, version: "2.0.0", electron: "45.2.3", platform: "win32" }),
+      status: async () => ({ helper: { core: { ok: true, detail: "PowerShell 5.1.26100" }, media: { ok: true, detail: "ok" }, audio: { ok: true, detail: "ok" }, system: { ok: true, detail: "ok" }, notifications: { ok: true, detail: "ok" }, uia: { ok: true, detail: "ok" }, phone: { ok: true, detail: "listening on 1716 \xB7 3 devices" }, weather: { ok: true, detail: "London \xB7 17.6\xB0" } }, version: "1.0.0", electron: "45.2.3", platform: "win32" }),
       displays: async () => [{ id: "1", label: "Display 1", primary: true, size: "2560\xD71440" }],
       test: async () => true,
       restartHelper: async () => true,
@@ -3307,7 +3307,7 @@
         get: async () => weatherData,
         refresh: async () => true
       },
-      phone: { get: async () => phoneData, cmd: async (n) => n === "downloadDir" ? "C:\\Users\\Saeed\\Downloads\\Blinkelo" : true },
+      phone: { get: async () => phoneData, cmd: async (n) => n === "downloadDir" ? "C:\\Users\\me\\Downloads\\Blinkelo" : true },
       gaming: {
         get: async () => ({
           enabled: true,
@@ -3346,7 +3346,7 @@
       subs: {
         get: async () => null,
         cmd: async (n, a) => {
-          if (n === "dir" || n === "resetDir") return s.subtitles && s.subtitles.dir || "C:\\Users\\Saeed\\Downloads\\Subtitles";
+          if (n === "dir" || n === "resetDir") return s.subtitles && s.subtitles.dir || "C:\\Users\\me\\Downloads\\Subtitles";
           if (n === "pickDir") {
             s = merge(s, { subtitles: { dir: "D:\\Movies\\Subtitles" } });
             return "D:\\Movies\\Subtitles";

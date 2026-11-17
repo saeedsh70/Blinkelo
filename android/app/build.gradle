@@ -2,6 +2,18 @@ plugins {
     id 'com.android.application'
 }
 
+// Release signing. Put your own key in android/keystore.properties (git-ignored, never commit it):
+//   storeFile=C:/keys/blinkelo-release.jks
+//   keyAlias=blinkelo
+//   storePassword=...        (or set the environment variable BLINKELO_STORE_PASSWORD)
+//   keyPassword=...          (or BLINKELO_KEY_PASSWORD; defaults to the store password)
+// Without that file a release build is signed with the local debug key, so "Build APK" still works, but such an APK
+// must not be published: Android only installs updates signed with the same key as the installed app.
+def keystoreFile = rootProject.file('keystore.properties')
+def releaseKey = new Properties()
+if (keystoreFile.exists()) keystoreFile.withInputStream { releaseKey.load(it) }
+def keySetting = { String name, String env -> releaseKey.getProperty(name) ?: System.getenv(env) }
+
 android {
     namespace 'com.saeedsh.islandlink'
     compileSdk 35
@@ -10,16 +22,25 @@ android {
         applicationId "com.saeedsh.islandlink"
         minSdk 26
         targetSdk 35
-        versionCode 7
-        versionName "1.1.0"
+        versionCode 8
+        versionName "1.0.0"
+    }
+
+    signingConfigs {
+        release {
+            if (keystoreFile.exists()) {
+                storeFile rootProject.file(releaseKey.getProperty('storeFile', ''))
+                keyAlias releaseKey.getProperty('keyAlias', 'blinkelo')
+                storePassword keySetting('storePassword', 'BLINKELO_STORE_PASSWORD')
+                keyPassword keySetting('keyPassword', 'BLINKELO_KEY_PASSWORD') ?: keySetting('storePassword', 'BLINKELO_STORE_PASSWORD')
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            // Signed with the debug key so "Build APK" gives an installable file right away.
-            // Replace with your own signing config before publishing anywhere.
-            signingConfig signingConfigs.debug
+            signingConfig keystoreFile.exists() ? signingConfigs.release : signingConfigs.debug
         }
     }
 
@@ -35,5 +56,11 @@ android {
     lint {
         abortOnError true
         checkReleaseBuilds true
+    }
+}
+
+gradle.taskGraph.whenReady { graph ->
+    if (!keystoreFile.exists() && graph.allTasks.any { it.name.toLowerCase().contains('release') }) {
+        logger.warn('Release APK signed with the DEBUG key (android/keystore.properties not found). Fine for testing, do not publish it.')
     }
 }

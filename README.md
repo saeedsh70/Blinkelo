@@ -14,9 +14,8 @@ The phone connection is built in: Blinkelo implements the open KDE Connect proto
 
 | Folder | What's inside |
 |---|---|
-| [`windows/`](windows) | **Blinkelo for Windows** 2.0.0 — Electron app + native Windows helper (PowerShell/C#) |
-| [`android/`](android) | **Blinkelo Link** 1.1.0 — Android companion app (Java, no third-party libraries) |
-| [`CHANGELOG.md`](CHANGELOG.md) | Release history of both apps |
+| [`windows/`](windows) | **Blinkelo for Windows** 1.0.0 — Electron app + native Windows helper (PowerShell/C#) |
+| [`android/`](android) | **Blinkelo Link** 1.0.0 — Android companion app (Java, no third-party libraries) |
 
 ## Highlights
 

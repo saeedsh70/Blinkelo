@@ -44,7 +44,7 @@ const M = {
     touchpad: { sensitivity: 1, scroll: 1, natural: false, haptics: true }, planner: { calendar: 'auto' },
   },
   devices: mockConnected ? [
-    { id: 'pc1', name: 'Saeed-PC', type: 'desktop', paired: true, pairState: 'paired', verifyKey: '', connected: true, wifi: true, bluetooth: true, address: '192.168.1.24' },
+    { id: 'pc1', name: 'My-PC', type: 'desktop', paired: true, pairState: 'paired', verifyKey: '', connected: true, wifi: true, bluetooth: true, address: '192.168.1.24' },
     { id: 'pc2', name: 'Office-Laptop', type: 'laptop', paired: false, pairState: 'none', verifyKey: '', connected: true, wifi: true, bluetooth: false, address: '192.168.1.40' },
   ] : [],
   tasks: [
@@ -55,15 +55,15 @@ const M = {
   ],
   timers: [{ id: 'tm1', label: 'Tea', duration: 300000, endsAt: now + 184000, origin: 'pc', remaining: 184000 }],
   received: [
-    { name: 'report-q3.pdf', uri: 'content://x/1', mime: 'application/pdf', size: 2400000, from: 'Saeed-PC', time: now - 600000 },
-    { name: 'PC-20261108-131210.jpg', uri: 'content://x/2', mime: 'image/jpeg', size: 380000, from: 'Saeed-PC', time: now - 3600000 },
-    { name: 'notes.txt', uri: 'content://x/3', mime: 'text/plain', size: 1200, from: 'Saeed-PC', time: now - 86400000 },
+    { name: 'report-q3.pdf', uri: 'content://x/1', mime: 'application/pdf', size: 2400000, from: 'My-PC', time: now - 600000 },
+    { name: 'PC-20261108-131210.jpg', uri: 'content://x/2', mime: 'image/jpeg', size: 380000, from: 'My-PC', time: now - 3600000 },
+    { name: 'notes.txt', uri: 'content://x/3', mime: 'text/plain', size: 1200, from: 'My-PC', time: now - 86400000 },
   ],
 };
 
 const mockCache = () => ({
-  hello: { app: 'Blinkelo', version: '2.0.0', platform: 'windows', features: ['mousepad', 'runcommand', 'sysinfo', 'apps', 'screenshot', 'pcmedia', 'tasks', 'timers', 'game'] },
-  sysinfo: { cpu: 23, ram: 61, ramUsed: 9.8, ramTotal: 16, gpu: 12, gpuTemp: 48, netDown: 2.4e6, netUp: 180e3, battery: null, charging: false, hostname: 'Saeed-PC', uptime: 18300, volume: 64, muted: false },
+  hello: { app: 'Blinkelo', version: '1.0.0', platform: 'windows', features: ['mousepad', 'runcommand', 'sysinfo', 'apps', 'screenshot', 'pcmedia', 'tasks', 'timers', 'game'] },
+  sysinfo: { cpu: 23, ram: 61, ramUsed: 9.8, ramTotal: 16, gpu: 12, gpuTemp: 48, netDown: 2.4e6, netUp: 180e3, battery: null, charging: false, hostname: 'My-PC', uptime: 18300, volume: 64, muted: false },
   pcmedia: { present: true, title: 'Midnight City', artist: 'M83', status: 'playing', position: 72, duration: 243, canSeek: true, source: 'Spotify', art, receivedAt: Date.now() },
   apps: { apps: [
     { id: 'a1', name: 'Chrome', icon: svgIcon('#4285F4', 'C') }, { id: 'a2', name: 'VS Code', icon: svgIcon('#0078D4', '</>') },
@@ -89,7 +89,7 @@ function mockState() {
   return {
     ready: true, service: true, me: { id: 'phone', name: 'Galaxy S24', port: 1716 }, devices: M.devices, active,
     pc: active ? mockCache().hello : {}, bluetooth: { available: true, permission: true, enabled: true, setting: M.settings.bluetooth, listening: true, error: '' },
-    ips: ['192.168.1.31'], settings: M.settings, lang: M.settings.language, version: '1.1.0',
+    ips: ['192.168.1.31'], settings: M.settings, lang: M.settings.language, version: '1.0.0',
     permissions: { notifications: true, notificationAccess: true, phone: true, contacts: false, sms: false, bluetooth: true, battery: false, exactAlarm: true, storage: true, fullScreen: true },
     cache: active ? mockCache() : { tasks: M.tasks, timers: M.timers, received: M.received },
   };

@@ -2,7 +2,7 @@
 
 A lively, animated island for the top of the Windows screen that tells you what's happening with a blink: media, notifications, phone calls and messages, timers, weather, a dashboard with widgets, a subtitle finder and a gaming mode. It works with the **Blinkelo Link** Android app (in [`../android`](../android)) or with the standard KDE Connect app, so Phone Link is optional.
 
-Version **2.0.0** · Electron 45 · Windows 10/11
+Version **1.0.0** · Electron 45 · Windows 10/11
 
 ## Features
 
@@ -60,6 +60,15 @@ The first start takes a few seconds while the Windows helper (PowerShell + C#) c
 
 On the first run Blinkelo asks for your language, then your city for the weather, then shows how to connect a phone. Everything except the language is optional. The **Try it** menu (tray icon or settings) shows every activity — music, message, call, weather, pairing request, timer… — without a phone.
 
+### Build a release
+
+```powershell
+npm run package                                 # uses node_modules/electron/dist (from npm install / npm ci)
+npm run package -- --electron C:\path\to\electron-v45.2.3-win32-x64   # or any unpacked Electron of the same version
+```
+
+This writes `dist\Blinkelo-<version>-win-x64\` (portable: run `Blinkelo.exe`) and `dist\Blinkelo-<version>-win-x64.zip` for GitHub Releases. Only the runtime files and the production dependencies are included, and the exe gets the Blinkelo icon and version info. Blinkelo registers *Start with Windows* for the copy that ran last, so unzip it to its final folder before the first start.
+
 ## Connecting a phone
 
 Blinkelo implements the open **KDE Connect** protocol itself, so nothing else is needed on the PC. On the phone use either:
@@ -96,6 +105,10 @@ If you also use Phone Link, its messages and calls appear in the island and you 
 - Logs live in `%APPDATA%\Blinkelo\logs` (`main.log` and `helper.log`). Attach them to bug reports.
 - **Classic players (VLC…)**: play/pause state is inferred from the audio output and the buttons send media keys. If a player ignores media keys, enable its *global hotkeys* option.
 - **Phone not found**: both devices on the same Wi-Fi (not a guest network), allow Blinkelo on **Private** networks in Windows Firewall, try *Add by IP*. Close any other app that uses port 1716 (for example KDE Connect desktop).
+- **Connected, but files or screenshots from the PC never reach the phone**: Windows probably blocks Blinkelo's incoming connections. This happens when the Wi-Fi is set to **Public** and the Windows Firewall prompt was closed or answered with *Cancel*: Windows then adds a *Block* rule. The PC can still connect to the phone, but the phone cannot connect back. Fix one of these:
+  - set your home Wi-Fi to **Private** (Settings → Network & internet → Wi-Fi → your network → *Private network*), or
+  - in **Windows Security → Firewall & network protection → Allow an app through firewall**, tick Blinkelo for the network type you use, and remove any *Blinkelo* rule set to *Block* in *Advanced settings → Inbound Rules*.
+  Blinkelo needs incoming TCP/UDP 1716 and TCP 1739–1764 from your local network.
 - **Bluetooth doesn't connect**: the phone must be paired in Windows Bluetooth settings and Blinkelo Link must be open or running in the background. Check the *Bluetooth* row in **Settings → Status**.
 - **Mouse control from the phone doesn't work on some windows**: Windows doesn't let a normal app control windows started with *Run as administrator*; run Blinkelo as administrator too.
 - **Crypto prices or news don't load**: press *Try again* in the widget or pick another feed.

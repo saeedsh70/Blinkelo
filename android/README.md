@@ -2,7 +2,7 @@
 
 The companion app for [Blinkelo for Windows](../windows). It speaks the KDE Connect protocol (so it also works with KDE Connect desktop) and adds Bluetooth links, full remote control of the PC and features shared between the phone and the island.
 
-Version **1.1.0** (versionCode 7) · Android 8.0 (API 26) or newer · no third-party libraries, Android SDK only
+Version **1.0.0** (versionCode 8) · Android 8.0 (API 26) or newer · no third-party libraries, Android SDK only
 
 ## Features
 
@@ -49,7 +49,24 @@ From the command line:
 
 Lint errors stop the build; the report is in `app/build/reports/lint-results-debug.html`.
 
-> The release build type is signed with the debug key so it installs right away. Create your own signing key in `app/build.gradle` before publishing to a store.
+### Release signing
+
+Android installs an update only if it is signed with the same key as the installed app, so a published APK needs a key you keep forever. Create one once (outside the repository, and back it up):
+
+```powershell
+keytool -genkeypair -keystore C:\keys\blinkelo-release.jks -alias blinkelo -keyalg RSA -keysize 4096 -validity 36500 -dname "CN=Blinkelo"
+```
+
+Then create `android/keystore.properties` (git-ignored):
+
+```properties
+storeFile=C:/keys/blinkelo-release.jks
+keyAlias=blinkelo
+storePassword=...
+keyPassword=...
+```
+
+The passwords can also come from the environment variables `BLINKELO_STORE_PASSWORD` / `BLINKELO_KEY_PASSWORD` instead. `./gradlew assembleRelease` then writes a signed `app/build/outputs/apk/release/app-release.apk`. Without `keystore.properties`, release builds are signed with your local debug key (for testing only) and Gradle prints a warning.
 
 ### Rebuilding the UI
 
@@ -97,6 +114,7 @@ The package id `com.saeedsh.islandlink` and the `island.*` protocol names are ke
 ## Troubleshooting
 
 - **PC not found**: both devices on the same network; VPNs and router "AP isolation" block discovery → use **Add by IP**. Open TCP/UDP 1716 and TCP 1739–1764 in the firewall.
+- **Connected, but files from the PC fail**: the PC's Windows Firewall blocks incoming connections (typical when the Wi-Fi is set to *Public* in Windows). See *Troubleshooting* in the [Windows README](../windows/README.md#troubleshooting).
 - **Connection drops after a while**: turn off battery optimization for Blinkelo Link.
 - **Notifications don't reach the PC**: grant *Notification access* in the app's Permissions page.
 - **Bluetooth doesn't connect**: the phone must be paired in Windows and the app must be open (or its service running); check the *Bluetooth* row in Blinkelo → Settings → Status.

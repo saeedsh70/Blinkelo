@@ -1,7 +1,7 @@
 {
   "name": "blinkelo",
   "productName": "Blinkelo",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "description": "Blinkelo: a lively, animated island for Windows that tells you with a blink. Media, subtitles, gaming mode, notifications, calls and the Blinkelo Link phone companion.",
   "main": "src/main/main.js",
   "author": "SaeedSH",
@@ -10,11 +10,13 @@
     "test": "node --test verification/security.test.cjs && node verification/windows-fixes.cjs && node verification/v15-features.cjs && node verification/v16-subtitles.cjs && node verification/v17-gaming.cjs && node verification/v171-library-osd.cjs && node verification/v172-fixes.cjs && node verification/v173-launch.cjs && node verification/v174-bar.cjs && node verification/v175-fullscreen.cjs && node verification/v180-phone-gaming.cjs && node verification/v200-blinkelo.cjs && node verification/json-safety.cjs && node verification/gpu-stats.cjs",
     "start": "electron .",
     "build:ui": "esbuild src/renderer/island/island.js --bundle --format=iife --target=chrome120 --outfile=src/renderer/island/island.bundle.js && esbuild src/renderer/settings/settings.src.js --bundle --format=iife --target=chrome120 --outfile=src/renderer/settings/settings.js",
-    "dev": "npm run build:ui && electron ."
+    "dev": "npm run build:ui && electron .",
+    "package": "node scripts/package.cjs"
   },
   "devDependencies": {
     "electron": "45.2.3",
-    "esbuild": "^0.28.2"
+    "esbuild": "^0.28.2",
+    "rcedit": "4.0.1"
   },
   "dependencies": {
     "bonjour-service": "^1.4.4",

@@ -12,3 +12,6 @@ verification/core/core-regression-*/
 verification/core/runtime/
 verification/features/build/
 verification/interop/runtime/
+keystore.properties
+*.jks
+*.keystore

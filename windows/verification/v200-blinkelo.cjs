@@ -14,7 +14,7 @@ check('package identity', () => {
   const pj = JSON.parse(read('package.json'));
   assert.strictEqual(pj.productName, 'Blinkelo');
   assert.strictEqual(pj.name, 'blinkelo');
-  assert.match(pj.version, /^2\./);
+  assert.match(pj.version, /^\d+\.\d+\.\d+$/);
   assert.match(read('src/main/main.js'), /setAppUserModelId\('com\.saeedsh\.blinkelo'\)/);
 });
 
