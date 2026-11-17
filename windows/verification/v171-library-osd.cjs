@@ -43,7 +43,8 @@ const put = (f, data = '') => { fs.mkdirSync(path.dirname(f), { recursive: true 
   put(path.join(fnDir, 'FortniteGame', 'Binaries', 'Win64', 'FortniteClient-Win64-Shipping.exe'), 'x');
   put(path.join(pd, 'Epic', 'EpicGamesLauncher', 'Data', 'Manifests', 'A.item'), JSON.stringify({ DisplayName: 'Fortnite', InstallLocation: fnDir, LaunchExecutable: 'FortniteGame/Binaries/Win64/FortniteClient-Win64-Shipping.exe', CatalogNamespace: 'fn', CatalogItemId: '4fe7', AppName: 'Fortnite', AppCategories: ['public', 'games', 'applications'] }));
   put(path.join(pd, 'Epic', 'EpicGamesLauncher', 'Data', 'Manifests', 'B.item'), JSON.stringify({ DisplayName: 'Unreal Engine', InstallLocation: fnDir, AppName: 'UE_5', AppCategories: ['engines'] }));
-  const gogExe = path.join(tmp, 'GOG Games', 'Witcher 3', 'bin', 'x64', 'witcher3.exe');
+  // the folder name must not match gaming.js LIB_RE ("GOG Games" does), or the "no library dirs" check below cannot pass on Windows
+  const gogExe = path.join(tmp, 'GOGLib', 'Witcher 3', 'bin', 'x64', 'witcher3.exe');
   put(gogExe, 'x');
   const valo = path.join(tmp, 'Riot Games', 'VALORANT', 'live', 'VALORANT.exe');
   put(valo, 'x');
@@ -51,7 +52,7 @@ const put = (f, data = '') => { fs.mkdirSync(path.dirname(f), { recursive: true 
   put(retro, 'x');
   const reg = {
     steam, programData: pd,
-    gog: [{ id: '1207664663', name: 'The Witcher 3', exe: gogExe, path: path.join(tmp, 'GOG Games', 'Witcher 3'), args: '' }, { id: '9', name: 'DLC', exe: gogExe, path: '', dlc: '1207664663' }],
+    gog: [{ id: '1207664663', name: 'The Witcher 3', exe: gogExe, path: path.join(tmp, 'GOGLib', 'Witcher 3'), args: '' }, { id: '9', name: 'DLC', exe: gogExe, path: '', dlc: '1207664663' }],
     ubi: [], uninstall: [{ key: 'Steam App 1245620', name: 'ELDEN RING', icon: `"${eldenIco}",0`, loc: '' }], rtss: '',
   };
   const sessions = [

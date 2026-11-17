@@ -37,7 +37,7 @@ Languages: English, العربية, Türkçe, Español, Русский, 简体�
 
 ## Build
 
-1. Install [Android Studio](https://developer.android.com/studio) (Ladybug 2024.2 or newer) with the Android 15 (API 35) SDK. The bundled JDK 17/21 is enough (lint fails on JDK 25).
+1. Install [Android Studio](https://developer.android.com/studio) (Ladybug 2024.2 or newer) with the Android 15 (API 35) SDK. Gradle must run on **JDK 17 or 21**: lint (and therefore release builds) fails on JDK 24 and newer. Recent Android Studio versions bundle JDK 25, so set **Settings → Build, Execution, Deployment → Build Tools → Gradle → Gradle JDK** to a JDK 17 or 21 (*Download JDK…* if none is listed). On the command line, point `JAVA_HOME` to it.
 2. **File → Open** this `android` folder (the one that contains `settings.gradle`) and wait for Gradle sync.
 3. **Run ▶** to install on a connected phone (USB debugging on), or **Build → Build APK(s)**. The APK is written to `app/build/outputs/apk/debug/app-debug.apk`.
 

@@ -3,3 +3,12 @@
 plugins {
     id 'com.android.application' version '8.7.3' apply false
 }
+
+// Lint in AGP 8.7 cannot run on JDK 24 or newer: it fails with nothing but the Java version (for example "25.0.4"),
+// and release builds run lint too. Recent Android Studio versions bundle JDK 25, so say what to change.
+def gradleJdk = Runtime.version().feature()
+if (gradleJdk >= 24) {
+    logger.warn("Gradle is running on JDK ${gradleJdk}: lint and release builds will fail with this Android Gradle Plugin. " +
+            "Use JDK 17 or 21 (Android Studio: Settings > Build, Execution, Deployment > Build Tools > Gradle > Gradle JDK; " +
+            "command line: JAVA_HOME).")
+}
