@@ -2436,7 +2436,7 @@ function runDemo(kind) {
       onHelper({ type: 'volume', level: clamp(state.volume.level + 0.12 > 1 ? 0.3 : state.volume.level + 0.12, 0, 1), muted: false });
       break;
     case 'caps': onHelper({ type: 'keys', caps: !(state.keys && state.keys.caps), num: true, changed: 'caps' }); break;
-    case 'copied': onClipboard({ item: { id: `d${Date.now()}`, kind: 'text', text: 'https://github.com/SaeedSH/blinkelo', time: Date.now() }, history: state.clipHistory }); break;
+    case 'copied': onClipboard({ item: { id: `d${Date.now()}`, kind: 'text', text: 'https://github.com/saeedsh70/Blinkelo', time: Date.now() }, history: state.clipHistory }); break;
     case 'privacy':
       state.privacyKnown = true;
       onHelper({ type: 'privacy', mic: ['Zoom'], cam: [], loc: [] });
@@ -2461,7 +2461,7 @@ function runDemo(kind) {
     case 'subs': startDemoSubs(); break;
     case 'gaming': showTransient('gameSummary', { id: `demo${Date.now()}`, name: 'cyberpunk2077', title: 'Cyberpunk 2077', dur: 5412, avgFps: 118, low1: 74, maxCpuTemp: 78, maxGpuTemp: 83, temp: gmCfg().temp }, 12000); bump(0.6); edge('var(--purple)'); break;
     case 'received': onReceived({ type: 'received', kind: 'file', file: 'IMG_20261108_142233.jpg', size: 3481221, image: true, name: 'Galaxy S24', path: '' }); break;
-    case 'receivedLink': onReceived({ type: 'received', kind: 'url', url: 'https://github.com/SaeedSH/blinkelo', opened: true, name: 'Galaxy S24' }); break;
+    case 'receivedLink': onReceived({ type: 'received', kind: 'url', url: 'https://github.com/saeedsh70/Blinkelo', opened: true, name: 'Galaxy S24' }); break;
     case 'transfer': onTransfer({ dir: 'out', tid: 'demo', name: 'Presentation-final.pptx', done: 6200000, total: 9800000, state: 'active' }); break;
     case 'phoneTimer': onPhoneTimer({ state: 'running', id: 'tm-demo', label: 'Tea', duration: 300000, remaining: 184000, from: 'Galaxy S24' }); break;
     default: break;

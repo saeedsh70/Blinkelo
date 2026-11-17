@@ -211,6 +211,7 @@ const ROUTES = {
   permissions: { parent: 'settings', render: permissionsPage, mount: () => { S.st.permissions = call('permissions') || S.st.permissions; } },
   notifapps: { parent: 'settings', render: notifAppsPage, mount: () => { S.notifApps = call('notifApps') || []; softRender(['notifapps']); } },
   about: { parent: 'settings', render: aboutPage },
+  support: { parent: 'settings', render: supportPage },
 };
 
 // A page is mounted at most once, and never while the app is off screen (MainActivity may route on a notification
@@ -1208,7 +1209,8 @@ function settingsPage() {
     </section>
     <h4 class="sec">${t('secLanguage')}</h4>
     <section class="card pad"><div class="langs">${langs.map(([k, n]) => `<button class="lang ${(s.language || 'auto') === k ? 'on' : ''}" data-act="lang" data-arg="${k}">${esc(n)}</button>`).join('')}</div></section>
-    <section class="card list">${setRow('info', t('page_about'), `${t('appName')} ${esc(S.st.version || '')}`, '', 'go:about')}</section>`;
+    <section class="card list">${setRow('heart', t('page_support'), t('supportSub'), '', 'go:support')}
+      ${setRow('info', t('page_about'), `${t('appName')} ${esc(S.st.version || '')}`, '', 'go:about')}</section>`;
 }
 
 const PERMS = {
@@ -1242,13 +1244,32 @@ function notifAppsPage() {
 function aboutPage() {
   return `<section class="card pad center-col about">
       <div class="logo bk-logo">${logoSvg()}</div><h2>${t('appName')}</h2><div class="dim">${esc(S.st.version || '')} · SaeedSH</div>
-      <p class="hint center">${t('aboutText')}</p></section>
+      <p class="hint center">${t('aboutText')}</p>
+      <button class="btn ghost sm" data-act="go" data-arg="support">${icon('heart', 16)} ${t('page_support')}</button></section>
     <section class="card list">
       ${setRow('monitor', t('pcApp'), S.st.pc && S.st.pc.app ? `${esc(S.st.pc.app)} ${esc(S.st.pc.version || '')}` : t('pcAppUnknown'))}
       ${setRow('shield-check', t('security'), t('securityText'))}
       ${setRow('globe', t('protocol'), t('protocolText'))}
     </section>
     <div class="row-center"><button class="link danger" data-act="stopService">${t('stopService')}</button></div>`;
+}
+
+// project links (the native side only opens http(s) links, see Bridge "openUrl")
+const REPO_URL = 'https://github.com/saeedsh70/Blinkelo';
+const LINKS = { donate: `${REPO_URL}/blob/main/DONATE.md`, repo: REPO_URL, issues: `${REPO_URL}/issues/new/choose` };
+
+function supportPage() {
+  return `<section class="card pad center-col support-hero">
+      <span class="support-heart">${icon('heart', 44, 2)}</span>
+      <h2>${t('page_support')}</h2>
+      <p class="hint center">${t('supportText')}</p>
+      <button class="btn primary wide" data-act="openUrl" data-arg="${LINKS.donate}">${icon('heart', 18, 2.2)} ${t('donateCrypto')}</button>
+      <div class="dim small" dir="ltr">BTC · USDT (TRC20, BEP20) · SOL</div></section>
+    <p class="hint">${t('supportFree')}</p>
+    <section class="card list">
+      <div class="set-row" data-act="openUrl" data-arg="${LINKS.repo}"><span class="sr-ic">${icon('star', 18)}</span><span class="sr-main"><b>${t('starGithub')}</b></span>${icon('external-link', 16, 2, 'dim')}</div>
+      <div class="set-row" data-act="openUrl" data-arg="${LINKS.issues}"><span class="sr-ic">${icon('bug', 18)}</span><span class="sr-main"><b>${t('reportBug')}</b></span>${icon('external-link', 16, 2, 'dim')}</div>
+    </section>`;
 }
 
 function emptyState(ic, title, hint) {

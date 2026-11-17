@@ -2,7 +2,7 @@
 
 A lively, animated island for the top of the Windows screen that tells you what's happening with a blink: media, notifications, phone calls and messages, timers, weather, a dashboard with widgets, a subtitle finder and a gaming mode. It works with the **Blinkelo Link** Android app (in [`../android`](../android)) or with the standard KDE Connect app, so Phone Link is optional.
 
-Version **1.0.0** · Electron 45 · Windows 10/11
+Version **1.0.1** · Electron 45 · Windows 10/11
 
 ## Features
 

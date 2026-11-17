@@ -2,7 +2,7 @@
 
 The companion app for [Blinkelo for Windows](../windows). It speaks the KDE Connect protocol (so it also works with KDE Connect desktop) and adds Bluetooth links, full remote control of the PC and features shared between the phone and the island.
 
-Version **1.0.0** (versionCode 8) · Android 8.0 (API 26) or newer · no third-party libraries, Android SDK only
+Version **1.0.1** (versionCode 9) · Android 8.0 (API 26) or newer · no third-party libraries, Android SDK only
 
 ## Features
 

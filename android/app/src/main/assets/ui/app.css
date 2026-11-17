@@ -715,3 +715,10 @@ textarea { resize: none; min-height: 80px; }
 .bk-logo.glow { width: 112px; height: 112px; border-radius: 30px; box-shadow: 0 18px 44px rgba(71, 166, 255, .35), inset 0 0 0 1px rgba(255, 255, 255, .08); }
 .bk-logo.glow .bk-pill { width: 90px; height: 43px; }
 .bk-logo.glow .bk { --bk-w: 10px; --bk-h: 22px; --bk-gap: 16px; }
+
+/* support page */
+.support-hero { gap: 10px; }
+.support-hero h2 { margin: 2px 0 0; }
+.support-heart { color: #ff4f8b; filter: drop-shadow(0 6px 18px rgba(255, 79, 139, .4)); margin-top: 6px; }
+.support-heart .ic path { fill: currentColor; }
+.support-hero .small { font-size: 12.5px; }

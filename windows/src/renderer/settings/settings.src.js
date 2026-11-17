@@ -4,6 +4,7 @@ import shared from '../../shared/strings.js';
 import { CLOCK_ZONES, cityName } from '../island/cities.js';
 import DM from '../../shared/deck-meta.js';
 import SL from '../../shared/sub-langs.js';
+import LINKS from '../../shared/links.js';
 import { faceHtml, createBlinker, followPointer } from '../shared/blink.js';
 
 const { strings, LANGS, langInfo } = shared;
@@ -63,7 +64,7 @@ const num = (n) => String(n);
 const SECTIONS = [
   ['welcome', 'sparkles'], ['appearance', 'layout-grid'], ['modules', 'app-window'], ['notificationsNav', 'bell'],
   ['phoneNav', 'smartphone'], ['shortcutsNav', 'rocket'], ['subtitlesNav', 'captions'], ['gamingNav', 'gamepad-2'], ['widgetsNav', 'bitcoin'], ['weatherNav', 'cloud-sun'], ['behavior', 'settings'],
-  ['tryit', 'play'], ['status', 'activity'], ['about', 'flag'],
+  ['tryit', 'play'], ['status', 'activity'], ['support', 'heart'], ['about', 'flag'],
 ];
 
 const KDE_PLAY = 'https://play.google.com/store/apps/details?id=org.kde.kdeconnect_tp';
@@ -982,10 +983,23 @@ const SECTION_RENDER = {
       <button class="btn" data-cmd="logs">${icon('folder-open', 15)} ${esc(t('openLogs'))}</button></div>
       ${statusData ? `<p class="muted small" dir="ltr">v${esc(statusData.version)} · Electron ${esc(statusData.electron)} · ${esc(statusData.platform)}</p>` : ''}`;
   },
+  support() {
+    return `<section class="hero support">
+      <div class="support-ic">${icon('heart', 40, 2, '', true)}</div>
+      <h1>${esc(t('supportTitle'))}</h1><p>${esc(t('supportText'))}</p>
+      <div class="btns"><button class="btn accent big" data-url="${LINKS.DONATE}">${icon('heart', 16, 2.2)} ${esc(t('donateCrypto'))}</button></div>
+      <p class="muted small" dir="ltr">BTC · USDT (TRC20, BEP20) · SOL</p>
+    </section>
+    <p class="muted">${esc(t('supportFree'))}</p>
+    <div class="btns"><button class="btn" data-url="${LINKS.REPO}">${icon('star', 15)} ${esc(t('starGithub'))}</button>
+      <button class="btn" data-url="${LINKS.ISSUES}">${icon('bug', 15)} ${esc(t('reportBug'))}</button></div>`;
+  },
   about() {
     return `<section class="hero about">
       ${heroIsland(true)}
       <h1 class="bk-wordmark">Blinkelo</h1><p class="bk-tagline">${esc(t('blinkTagline'))}</p><p>${esc(t('aboutText'))}</p>
+      <div class="btns"><button class="btn" data-go="support">${icon('heart', 15)} ${esc(t('supportTitle'))}</button>
+      <button class="btn" data-url="${LINKS.REPO}">${icon('star', 15)} ${esc(t('starGithub'))}</button></div>
       <p class="muted" dir="ltr">© SaeedSH · ${esc(statusData ? `v${statusData.version}` : '')}</p>
       <p class="muted small" dir="ltr">Inter font (OFL) · Lucide icons (ISC) · KDE Connect protocol (GPL apps, open protocol) · Open-Meteo</p>
     </section>`;

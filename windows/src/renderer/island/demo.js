@@ -172,7 +172,7 @@ export function createDemoBridge() {
     { path: 'C:\\Projects\\island', name: 'island', isDir: true },
   ];
   const clips = [
-    { id: 'c1', kind: 'text', text: 'https://github.com/SaeedSH', time: Date.now() - 60000 },
+    { id: 'c1', kind: 'text', text: 'https://github.com/saeedsh70/Blinkelo', time: Date.now() - 60000 },
     { id: 'c2', kind: 'text', text: 'Meeting tomorrow at 10 am', time: Date.now() - 600000 },
   ];
   const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;

@@ -23,6 +23,7 @@ const { Backdrop } = require('./backdrop');
 const { SubtitleFinder, LANGS: SUB_LANGS } = require('./subtitles');
 const { Gaming, exeName: gameExeName } = require('./gaming');
 const { strings, LANGS } = require('../shared/strings');
+const LINKS = require('../shared/links');
 
 // Keep the transparent overlay rendering even when Windows thinks it is "occluded".
 app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
@@ -501,6 +502,7 @@ function updateTrayMenu() {
   const demo = (k) => () => toIsland('demo', k);
   const menu = Menu.buildFromTemplate([
     { label: t.settings, click: () => openSettings() },
+    { label: `${t.supportTitle}…`, click: () => shell.openExternal(LINKS.DONATE) },
     { label: settings.data.hidden ? t.showIsland : t.hideIsland, click: () => settings.set({ hidden: !settings.data.hidden }) },
     { label: settings.data.minimized ? t.restore : t.minimize, click: () => settings.set({ minimized: !settings.data.minimized }) },
     { label: t.resetPosition, click: () => settings.set({ position: null }) },
